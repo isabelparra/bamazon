@@ -16,40 +16,44 @@ var connection = mysql.createConnection({
     database: "bamazon_DB"
 });
 
+
 // connect to the mysql server and sql database
 connection.connect(function(err) {
     if (err) throw err;
-    console.log('connected as id: ' + connection.threadId + '\n');
+    // console.log('connected as id: ' + connection.threadId + '\n');
     // display list of products
     displayProducts(); 
-
 });
 
 function displayProducts () {
+    // var display = new productTable();
    connection.query('SELECT * FROM products', 
    function(err, res) {
-    if (err) throw err;
+    // if (err) throw err;
 //    }
     // Log all products
     console.log(res);
-    productID();
+    newPurchase();
     // connection.end();
    });
 };
 
 
-function productID()   {
+function newPurchase()   {
+//   connection.query('SELECT * FROM products', function(err, res) {
+//  if (err) throw err;
+   
     inquirer
     .prompt([
         {
         name: 'id',
-        type: 'integer',
+        type: 'input',
         message: 'Please enter the item ID which you would like to purchase'
     },
     {    name: "quantity",
-         type: "integer",
-         message: 'Enter the quantity you want to purchase',
-       }
+         type: "input",
+         message: 'Enter the quantity you want to purchase'
+       },
 
 
         // validate: function(value) {
@@ -60,45 +64,299 @@ function productID()   {
         //         return false;
         //     }
       
-])
-    // });
-        // validate: validateInput,
-        // filter: Number 
- 
-    .then(function(answer) {
+]).then(function(answer) {
+
+        // console.log('You chose: ' + answer.quantity + answer.id);
+        
+var quantityDesired = answer.quantity;
+var chosenItem = answer.id;
+
+connection.query('SELECT * FROM products WHERE item_id = ' +  chosenItem,
+
+
+    function(err, res) {
+        console.log('You chose: ' + answer.quantity +  '  ' + res[0].product_name);
+
+
+    if (res[0].stock_quantity >= quantityDesired) {
+
+
+         console.log('congrats. Your item is in stock');
+         
+        var totalCost = res[0].price * quantityDesired;
+console.log('your total cost is ' + totalCost );
+connection.query('UPDATE products SET stock_quantity = stock_quantity - ' + quantityDesired + ' WHERE item_id = ' + chosenItem);
+    
+
+        } else {
+           console.log('Our apologies. We are out of stock');
+        //    displayProducts();
+        }
+
+    // [
+    //     item_id: answer.id,
+    //     answer.quantity,
+    // ],
+//     function(err, res) {
+//         // if (err) throw err;
+//         console.log('\n You chose ' + quantity + ' ' + res[0].product_name + ' ' +  ' each');
+        
+        // + answer.quantity + ' ' + res[0].product_name + ' ' +  ' at $' + res[0].price + ' each');
+
+   
+
+
+        //    if (answer.length === 0) {
+    //        console.log('in')
+    //    }
+    //     var chosenItem = answer.id;
+    //     var quantityDesired = answer.quantity;
+    //     checkQuantity();
+            // chosenItem, quantityDesired);
+        // console.log('\n You chose ' + answer.quantity + ' ' + res[0].product_name + ' ' +  ' at $' + res[0].price + ' each');
+    });
+
+// });
+});
+};
+
+// function updateInventory() {
+
+//     var updatedStock;
+//     updatedStock = stock_quantity - quantityDesired;
+//     var totalCost;
+
+    
+    
+    // [
+        // { stock_quantity: updatedStock 
+        // }, {
+        //     item_id: chosenItem
+        //       }
+        //           ],
+//             function(err, res) {
+//                       if (error) throw err;
+//                       console.log('order placed');
+//                });
+
+// };
+// }; // end inquire
+
+//  function checkQuantity() {
+//     //  id, quantity
+
+// connection.query('SELECT stock_quantity, price, product_name FROM products WHERE ?', [{item_id: chosenItem}], 
+
+// //   (query,
+// // { item_id: chosenItem
+// //             // stock_quantity: answer.quantity
+// //         },
+//  function(err, res) {
+//     if (err) throw err;
+
+//       if (res.length === 0) {
+//           console.log('invalid');
+//           displayProducts();
+//       } else {
+//           var res = res[0];
+
+      
+
+//  if (res[0].stock_quantity >= quantityDesired) {
+//    console.log('congrats');
+// //    var total = res[0].price * quantityDesired;
+
+//  } else {
+//      console.log('insufficient');
+//  };
+//  }
+// );
+
+// };
+// // //     console.log(total);
+// //  } else {
+// //      console.log('sorry');
+//  }
+// });
+// }
+
+// //  };
+// // };
+
+// //                     // if (res.length === 0) {
+                       
+// //                 });
+// //             };
+
+// //         };
+//         //         console.log('error: invalid item');
+//         //         displayProducts();
+//         //     } else {
+//         //         var productData = data[0];
+//         //         console.log('new inv');
+
+            
+//         //             // if (err) throw err;
+//         //     // console.log('invalid');
+//         //        }
+//                 // };
+//         // quantityCheck();
+//                 //  if (res[0].stock_quantity >= answer.quantity) {
+
+//                 //  var itemQuantity = res[0].stock_quantity - answer.quantity;
+               
+//                 //             connection.query('UPDATE products SET ? WHERE ?',
+//                 //                     [
+//                 //                         {
+//                 //                         stock_quantity: itemQuantity
+//                 //                         },
+                //                         {
+                //                         item_id: answer.id
+                //                         }
+                //                     ],
+                //                     function(err, res) {
+                //                         // if (error) throw err;
+                //                         // console.log('order placed');
+                //                     });
+                //                     console.log('success');
+                //                     displayProducts();
+                //             } else {
+                //                 console.log('insuff');
+                //             }
+                       
+                 
+                
+        //     });
+                        
+        // });
+    
+                   
+                
+                        // } else {
+                        //     console.log('insuff');
+                        // }
+        
+
+//                 });
+            
+//             });
+//   });
+        // };
+   
+   
+           
+    //    });
+            // console.log('\n You chose ' + answer.quantity + ' ' + res[0].product_name + ' ' +  ' at $' + res[0].price + ' each');
+
+            // if (err) throw err;
+        
+       
+
+        
 
         // var chosenItem;
-        // var quantityAvailable = answer.stock_quantity;
+        // = answer.item_id;
+        // var userUnits = answer.stock_quantity; 
 
-        connection.query('SELECT product_name, department_name, price, stock_quantity FROM products WHERE ?',
+        
+        
+      
+    // });
 
-        {item_id: answer.id},
-        function(err, res) {
-            // for (var i = 0; i < res.length; i++) {
-                console.log('\n You chose ' + answer.quantity + ' ' + res[0].product_name + ' ' +  'at $' + res[0].price + ' each');
-            // };
-            if (res[0].stock_quantity >= answer.quantity) {
-                     var itemQuantity = res[0].stock_quantity - answer.quantity;
-                     connection.query('UPDATE products SET ? WHERE ?',
-                    [
-                        {
-                        stock_quantity: itemQuantity
-                        },
-                        {
-                        item_id: answer.id
-                        }
-                    ],
-                    function(err, res) {
-                        if (error) throw err;
-                        console.log('order placed');
-                        });
+
+
+    //    for (var i = 0; i < res.length; i++) {
+    //         if (res[i].item_id === answer.id) {
+    //             chosenItem = res[i];
+    //         }
+    //     }
+    //   var quantityAvailable = answer.stock_quantity;
+//     function quantityCheck() {
+
+    
+
+// connection.query('SELECT * FROM products WHERE ?', {item_id: chosenItem},
+// // )
+//         {item_id: chosenItem},
+
+//         function(err, res) {
+
+//             console.log('\n You chose ' + answer.quantity + ' ' + res[0].product_name + ' ' +  ' at $' + res[0].price + ' each');
+            
+            
+//             if (res[0].stock_quantity >= answer.quantity) {
+
+//                 var productQuantity = res[0].stock_quantity - answer.quantity;
+            
+
+//              console.log('congrats');
+    
+//             } else {
+//                 console.log('insuff');
+//             }
+            
+//         })
+//     });
+// };
+            
+            // if (err) throw err;
+
+        
+
+            // if (res[0].stock_quantity < userUnits) {
+            //     console.log('error: invalid item');
+            //     displayProducts();
+            // // } else {
+            // //     var productData = data[0];
+            
+            // //     if (res[0].stock_quantity >= answer.quantity) {
+            // //         console.log('congrats');
+
+            // //         //  var itemQuantity = res[0].stock_quantity - answer.quantity;
+            // //          connection.query('UPDATE products SET ? WHERE ?',
+            // //         [
+            // //             {
+            // //             stock_quantity: itemQuantity
+            //             },
+            //             {
+            //             item_id: answer.id
+            //             }
+            //         ],
+            //         function(err, res) {
+            //             if (error) throw err;
+            //             console.log('order placed');
+            //             });
                     
-                } else {
-                    console.log('/n insufficient!\n');
-                }
-        });
-    });
-};
+            //     } else {
+            //         console.log('/n insufficient!\n');
+            //     }
+   
+                
+            // }
+            // for (var i = 0; i < res.length; i++) {
+            //     
+     // if (res[i].stock_quantity >= answer.quantity) {
+            //          var itemQuantity = res[0].stock_quantity - answer.quantity;
+            //          connection.query('UPDATE products SET ? WHERE ?',
+            //         [
+            //             {
+            //             stock_quantity: itemQuantity
+            //             },
+            //             {
+            //             item_id: answer.id
+            //             }
+            //         ],
+//                     function(err, res) {
+//                         if (error) throw err;
+//                         console.log('order placed');
+//                         });
+                    
+//                 } else {
+//                     console.log('/n insufficient!\n');
+//                 }
+//         });
+//     });
+// };
             // console.log('\n You chose ' + answer.quantity + '' + res[0].product_name );
         
     //     if (err) throw err;
@@ -190,4 +448,3 @@ function productID()   {
 
 //         for (var i = 0; i < res.length; i++) {
 //             console.log(res[i].id + )
-//         
