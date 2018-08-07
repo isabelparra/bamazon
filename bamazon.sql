@@ -5,11 +5,11 @@ CREATE DATABASE bamazon_DB;
 USE bamazon_DB;
 
 CREATE TABLE products (
-	item_id INT(11) AUTO_INCREMENT NOT NULL,
-    product_name VARCHAR(100) NOT NULL,
-    dept_name VARCHAR(45) NOT NULL,
-    price DECIMAL NOT NULL,
-    stock_quantity INT(11) NOT NULL,
+	item_id INT NOT NULL AUTO_INCREMENT,
+    product_name VARCHAR(100) NULL,
+    dept_name VARCHAR(45) NULL,
+    price DECIMAL NULL,
+    stock_quantity INTEGER NOT NULL,
 	PRIMARY KEY (item_id)
 );
 
@@ -25,7 +25,7 @@ VALUES ("12 Rules for Life", "Books", 15.57, 200),
     ("Ring Wi-Fi Enabled Video Doorbell", "Electronics", 99.99, 50),
     ("Nintendo Entertainment System: NES Classic Edition", "Electronics", 59.99, 25);
     
-    
+    SELECT * FROM products;
    
 
 

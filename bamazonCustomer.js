@@ -1,5 +1,5 @@
 // set up variables
-var mysql = require ('mysql');
+var mysql = require('mysql');
 var inquirer = require('inquirer');
 
 // create the connection information for the sql database
@@ -16,44 +16,38 @@ var connection = mysql.createConnection({
     database: "bamazon_DB"
 });
 
-
 // connect to the mysql server and sql database
 connection.connect(function(err) {
     if (err) throw err;
     // console.log('connected as id: ' + connection.threadId + '\n');
-    // display list of products
+
     displayProducts(); 
 });
 
+// Function to display all products
 function displayProducts () {
-    // var display = new productTable();
    connection.query('SELECT * FROM products', 
    function(err, res) {
-    // if (err) throw err;
-//    }
     // Log all products
     console.log(res);
     newPurchase();
-    // connection.end();
    });
 };
 
 
 function newPurchase()   {
-//   connection.query('SELECT * FROM products', function(err, res) {
-//  if (err) throw err;
-   
     inquirer
     .prompt([
         {
         name: 'id',
         type: 'input',
-        message: 'Please enter the item ID which you would like to purchase'
-    },
-    {    name: "quantity",
-         type: "input",
-         message: 'Enter the quantity you want to purchase'
-       },
+        message: 'Please enter the ID of the item you would like to purchase'
+        },
+        {
+        name: "quantity",
+        type: "input",
+        message: 'Enter the quantity that you want to purchase'
+        }
 
 
         // validate: function(value) {
@@ -64,34 +58,122 @@ function newPurchase()   {
         //         return false;
         //     }
       
-]).then(function(answer) {
-
-        // console.log('You chose: ' + answer.quantity + answer.id);
+    ]).then(function(answer) {
         
-var quantityDesired = answer.quantity;
-var chosenItem = answer.id;
+        var quantityDesired = answer.quantity;
+        var chosenItem = answer.id;
 
-connection.query('SELECT * FROM products WHERE item_id = ' +  chosenItem,
+        connection.query('SELECT * FROM products WHERE item_id = ' +  chosenItem,
 
-
-    function(err, res) {
+        function(err, res) {
         console.log('You chose: ' + answer.quantity +  '  ' + res[0].product_name);
 
-
-    if (res[0].stock_quantity >= quantityDesired) {
-
-
-         console.log('congrats. Your item is in stock');
+        if (res[0].stock_quantity >= quantityDesired) {
+            console.log('Congratulations. Your item is in stock');
          
         var totalCost = res[0].price * quantityDesired;
-console.log('your total cost is ' + totalCost );
-connection.query('UPDATE products SET stock_quantity = stock_quantity - ' + quantityDesired + ' WHERE item_id = ' + chosenItem);
-    
+            console.log('Your total cost is $' + totalCost );
+
+            inquirer.prompt([
+                {
+                    type: 'confirm',
+                    name: 'confirm',
+                    message: '\n Confirm order? \n'
+                }
+            ]).then(function(answer) {
+                if (answer.confirm !== true) {
+                    continueShopping();
+                } else {
+        
+                connection.query('UPDATE products SET stock_quantity = stock_quantity - ' + quantityDesired + ' WHERE item_id = ' + chosenItem);
+                console.log('Thank you! Order placed.')
+                continueShopping();
+                }
+            });
+        
+            // connection.query('UPDATE products SET stock_quantity = stock_quantity - ' + quantityDesired + ' WHERE item_id = ' + chosenItem);
 
         } else {
            console.log('Our apologies. We are out of stock');
-        //    displayProducts();
+           continueShopping();
         }
+    });
+    });
+};
+
+function continueShopping() {
+    inquirer.prompt([
+        {
+        type: 'confirm',
+        name: 'continue',
+        message: '\n Would you like to place another order? \n',  
+        }
+        ]).then(function(answer) {
+            if (answer.continue !== true) {
+                console.log('Thank you. Goodbye');
+                return connection.end()
+
+                }
+            return displayProducts();
+
+                });
+       
+        };
+
+// function confirmPurchase() {
+//     inquirer.prompt([
+//         {
+//             type: 'confirm',
+//             name: 'confirm',
+//             message: '\n Confirm order? \n'
+//         }
+//     ]).then(function(answer) {
+//         if (answer.confirm !== true) {
+//             continueShopping();
+//         } else {
+
+//         connection.query('UPDATE products SET stock_quantity = stock_quantity - ' + quantityDesired + ' WHERE item_id = ' + chosenItem);
+//         console.log('Thank you! Order placed.')
+//         }
+//     });
+    
+// }
+          
+         // switch (answer.action) {
+                //     case 'Select a new item':
+                //     newPurchase();
+                //     break;
+
+                //     case 'Try a different quantity':
+                //     quantityCheck();
+                //     break;
+
+                //     case 'Exit':
+                //     connection.end();
+                //     break;
+
+    //     function quantityCheck() {
+    //         var chosenItem;
+    //         inquirer
+    //         .prompt([
+    //         //     {
+    //         //     name: 'id',
+    //         //     type: 'input',
+    //         //     message: 'Please enter the ID of the item you would like to purchase'
+    //         // },
+    //         {    name: "quantity",
+    //              type: "input",
+    //              message: 'Enter the quantity that you want to purchase'
+    //            },
+    //     }
+    // ]).then(function(answer) {
+        
+    //     var quantityDesired = answer.quantity;
+    //     var chosenItem = answer.id;
+    
+    // connection.query('SELECT * FROM products WHERE item_id = ' +  chosenItem,
+    
+    
 
     // [
     //     item_id: answer.id,
@@ -114,11 +196,11 @@ connection.query('UPDATE products SET stock_quantity = stock_quantity - ' + quan
     //     checkQuantity();
             // chosenItem, quantityDesired);
         // console.log('\n You chose ' + answer.quantity + ' ' + res[0].product_name + ' ' +  ' at $' + res[0].price + ' each');
-    });
+//     });
 
+// // });
 // });
-});
-};
+// };
 
 // function updateInventory() {
 
