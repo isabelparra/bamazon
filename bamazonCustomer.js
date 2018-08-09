@@ -1,6 +1,7 @@
 // set up variables
 var mysql = require('mysql');
 var inquirer = require('inquirer');
+var Table = require('cli-table');
 
 // create the connection information for the sql database
 var connection = mysql.createConnection({
@@ -20,20 +21,33 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
     if (err) throw err;
     // console.log('connected as id: ' + connection.threadId + '\n');
-
     displayProducts(); 
 });
 
 // Function to display all products
 function displayProducts () {
-   connection.query('SELECT * FROM products', 
-   function(err, res) {
+    console.log('\n============================ PRODUCTS FOR SALE =============================  \n');
+    console.log('===========================================================================');
+    
+    var table = new Table({
+        head: ['ID', 'Product Name', 'Department Name', 'Price'],
+        colWidths: [5, 30, 20, 10]
+    });
+
+    var query = 'SELECT * FROM products';
+   
+    connection.query(query,
+    function(err, res) {
+    if (err) throw err;
     // Log all products
-    console.log(res);
-    newPurchase();
+    // console.log(res);
+    for (var i = 0; i < res.length; i++) {
+        table.push([res[i].item_id, res[i].product_name, res[i].dept_name, res[i].price]);
+    }
+    console.log(table.toString());
+    newPurchase(res);
    });
 };
-
 
 function newPurchase()   {
     inquirer
@@ -41,37 +55,45 @@ function newPurchase()   {
         {
         name: 'id',
         type: 'input',
-        message: 'Please enter the ID of the item you would like to purchase'
-        },
+        message: 'Please enter the ID of the item you would like to purchase',
+        // validateInput()
+        validate: function(input) {
+            if (isNaN(input) === false && (input >= 1 && input <=10)) {
+                // if (err) throw err;
+                return true;
+                }
+                    console.log('\n Please enter a valid item id')
+                return false;
+            }
+        }
+        ,
         {
         name: "quantity",
         type: "input",
-        message: 'Enter the quantity that you want to purchase'
-        }
-
-
-        // validate: function(value) {
-        //     if (isNaN(value) === false) {
-        //         // if (err) throw err;
-        //         return true;
-        //         }   
-        //         return false;
-        //     }
-      
+        message: 'Enter the quantity you would like to purchase',
+        validate: function(input) {
+            if (isNaN(input) === false  && input >= 1) {
+                // if (err) throw err;
+                return true;
+                }   
+                    console.log('\n Please enter a valid quantity.')
+                return false;
+                }  
+        }  
     ]).then(function(answer) {
         
         var quantityDesired = answer.quantity;
         var chosenItem = answer.id;
 
         connection.query('SELECT * FROM products WHERE item_id = ' +  chosenItem,
-
         function(err, res) {
-        console.log('You chose: ' + answer.quantity +  '  ' + res[0].product_name);
+            console.log('=================================================================================');
+            console.log('You chose: ' + answer.quantity +  ' * ' + res[0].product_name + ' at $' + res[0].price + ' each');
 
         if (res[0].stock_quantity >= quantityDesired) {
-            console.log('Congratulations. Your item is in stock');
-         
-        var totalCost = res[0].price * quantityDesired;
+            console.log('Item(s) in stock');
+
+            var totalCost = res[0].price * quantityDesired;
             console.log('Your total cost is $' + totalCost );
 
             inquirer.prompt([
@@ -84,7 +106,6 @@ function newPurchase()   {
                 if (answer.confirm !== true) {
                     continueShopping();
                 } else {
-        
                 connection.query('UPDATE products SET stock_quantity = stock_quantity - ' + quantityDesired + ' WHERE item_id = ' + chosenItem);
                 console.log('Thank you! Order placed.')
                 continueShopping();
@@ -96,7 +117,8 @@ function newPurchase()   {
         } else {
            console.log('Our apologies. We are out of stock');
            continueShopping();
-        }
+        } 
+
     });
     });
 };
@@ -137,7 +159,7 @@ function continueShopping() {
 //         }
 //     });
     
-// }
+// };
           
          // switch (answer.action) {
                 //     case 'Select a new item':
