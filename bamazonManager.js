@@ -208,8 +208,6 @@ function addInventory() {
 //  
 
 function newProduct() {
-    // console.log('\n============================ Adding New Product =============================  \n');
-    // console.log('===========================================================================');
     inquirer.prompt([
         {
         name: 'product_name',
@@ -224,12 +222,19 @@ function newProduct() {
         {
         name: 'price',
         type: 'input',
-        message: 'Please enter price for new product'
+        message: 'Please enter price for new product',
+        validate: function(input) {
+            if (isNaN(input) === false) {
+                return true;
+            }
+            console.log('\n Please enter a valid price')
+            return false;
+        }
         },
         {
         name: "stock_quantity",
         type: "input",
-        message: 'Enter the quantity in stock for new product',
+        message: 'Enter the quantity in stock for the new product',
         validate: function(input) {
             if (isNaN(input) === false && input.length >= 1) {
                 // if (err) throw err;
@@ -248,16 +253,34 @@ function newProduct() {
             stock_quantity: parseInt(answer.stock_quantity)
         }
 
+        console.log('******* Adding ' +  answer.product_name  + ' ******** \n');
+
+        inquirer.prompt([
+            {
+                type: 'confirm',
+                name: 'confirm',
+                message: '\n Confirm order? \n'
+            }
+        ]).then(function(answer) {
+            if (answer.confirm !== true) {
+                promptManager();
+            } else {
+                connection.query('INSERT INTO products SET ?', newItem,
+                function(err, res) {
+                    if (err) throw err;
+
+                console.log('Item added.');
+                promptManager();
+                });
+            }
+
+
         
+               
+                
 
-        console.log('Adding new product: \n product_name = ' + answer.product_name);
-
-        connection.query('INSERT INTO products SET ?', newItem,
-            function(err, res) {
-                if (err) throw err;
-
-                console.log('\nAdded new product ' + answer.name + ' \n');
-                connection.end();
+                
+                // promptManager();
             });
         });
     };

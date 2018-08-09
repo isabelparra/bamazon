@@ -45,11 +45,18 @@ function displayProducts () {
         table.push([res[i].item_id, res[i].product_name, res[i].dept_name, res[i].price]);
     }
     console.log(table.toString());
-    newPurchase(res);
+    newPurchase();
    });
 };
 
 function newPurchase()   {
+    var query = 'SELECT * FROM products order by item_id asc';
+    connection.query(query, function(err, res) {
+        if (err) throw err;
+        console.log('\n');
+        var startID = res[0].item_id;
+        var endID = res[res.length-1].item_id;
+   
     inquirer
     .prompt([
         {
@@ -58,9 +65,11 @@ function newPurchase()   {
         message: 'Please enter the ID of the item you would like to purchase',
         // validateInput()
         validate: function(input) {
-            if (isNaN(input) === false && (input >= 1 && input <=10)) {
+            if (isNaN(input) === false && (input >= startID && input <= endID)) {
                 // if (err) throw err;
                 return true;
+                } else if (input) {
+
                 }
                     console.log('\n Please enter a valid item id')
                 return false;
@@ -121,6 +130,7 @@ function newPurchase()   {
 
     });
     });
+});
 };
 
 function continueShopping() {
