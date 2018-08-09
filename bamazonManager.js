@@ -145,6 +145,9 @@ function addInventory() {
     }
     console.log(table.toString());
     // viewProducts();
+
+    var startID = res[0].item_id;
+    var endID = res[res.length-1].item_id;
     
     inquirer
     .prompt([
@@ -153,7 +156,7 @@ function addInventory() {
             message: 'Please enter the item ID which you would like to stock',
             name: 'addMore',
             validate: function(input) {
-                if (isNaN(input) === false && input <= 10) {
+                if (isNaN(input) === false && (input >= startID && input <= endID)) {
                     // if (err) throw err;
                     return true;
                     }   
@@ -253,13 +256,13 @@ function newProduct() {
             stock_quantity: parseInt(answer.stock_quantity)
         }
 
-        console.log('******* Adding ' +  answer.product_name  + ' ******** \n');
+        console.log('> Adding ' +  answer.product_name + '...');
 
         inquirer.prompt([
             {
                 type: 'confirm',
                 name: 'confirm',
-                message: '\n Confirm order? \n'
+                message: '\n Confirm new product? \n'
             }
         ]).then(function(answer) {
             if (answer.confirm !== true) {
@@ -274,51 +277,8 @@ function newProduct() {
                 });
             }
 
-
-        
-               
-                
-
-                
-                // promptManager();
             });
         });
     };
 
    
-
-    //     connection.query('UPDATE * FROM')
-        
-    //     for (var i = 0; i < res.length; i++) {
-    //     newProductLine.push([res[i].product_name, res[i].dept_name, res[i].price, res[i].stock_quantity]);
-    //     }
-    // console.log(table.toString());
-
-
-    // var query = 'SELECT * FROM products';
-
-    // connection.query(query, 
-    // function(err, res) {
-    //     if (err) throw err;
-
-  
-    // })
-
-
-
-// promptManager(); {
-
-// }
-
-
-
-// },
-// productID: {
-//     type: 'input',
-//     name: 'productID',
-//     message: 'Please enter the product ID of the item you want to stock: ',
-// },
-// productName: {
-
-// }
-
